@@ -1,5 +1,4 @@
-import { writeFile, readFile, unlink, access } from "fs/promises";
-import { join } from "path";
+import { writeFile, readFile, access } from "fs/promises";
 
 /**
  * Creates a backup of the original file and writes new content to the original file.

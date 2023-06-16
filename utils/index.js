@@ -3,6 +3,7 @@ import crawler from "./crawler.js";
 import destroyer from "./destroyer.js";
 import { join, extname } from "path";
 import { readdir, readFile } from "fs/promises";
+import { vueExpert } from "../simon.js";
 
 const start = async () => {
   console.log("Starting the server...");
@@ -24,25 +25,33 @@ const start = async () => {
  * @param {string} fileName - The name of the file.
  * @param {string} content - The content of the file.
  * @returns {Promise<void>}
+// const regex = /(?=.*<script)(?=.*setup)(?!.*setup\(\)).*$/g;
  */
   async function callback(path, fileName, content) {
-    // Do something with the file path, name, and content.
-    console.log(`Processing ${path}`);
     const ext = extname(fileName);
-    console.log(`File extension: ${ext}`);
     if (ext === ".vue") {
-      // Check if the file contains the words 'script' and 'setup' between "<" ">".
-      // if it does return true.
-      const regex = /<script.*setup.*>/gs;
-      const match = regex.test(content);
-      console.log(`Match: ${match}`);
-      if (match) {
-        console.log(`File ${path} already contains a <script setup> block.`);
+      // Detect if the file contents uses the script setup syntax
+      // '<script setup'
+      // '<script lang="ts" setup'
+
+      const isScriptSetup =
+        content.includes("<script setup") ||
+        content.includes('<script lang="ts" setup');
+      if (isScriptSetup) {
+        console.log(`${fileName} already contains a <script setup> block.`);
       } else {
-        // Add a comment to the file.
-        const newContent =
-          content + "\n// This file already contains a <script setup> block.";
-        await archiver(path, newContent);
+        console.log(`Processing::`);
+        console.log(`::${path}`);
+        console.log(`::${fileName}`);
+        console.log(`::${ext}`);
+        try {
+          const newName = fileName.replace(ext, "");
+          const newContent = await vueExpert(content, newName);
+          console.log("Saving new content...");
+          await archiver(path, newContent);
+        } catch (error) {
+          console.error(`Failed::${fileName} => ${error}`);
+        }
       }
     }
   }

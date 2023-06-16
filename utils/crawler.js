@@ -34,16 +34,14 @@ async function crawler(directory, callback, options = {}) {
       encoding: "utf8",
       withFileTypes: true,
     });
-    console.log(`Crawling directory ${directory}`);
-
     for (const file of files) {
       if (count >= fileLimit) {
         break;
       }
       const fullPath = join(directory, file.name);
-      console.log("Full path:", fullPath);
 
       if (file.isDirectory()) {
+        console.log(`<>::${file.name}`);
         if (
           disallowedDirectories.includes(file.name) ||
           (allowedDirectories.length > 0 &&
@@ -58,7 +56,6 @@ async function crawler(directory, callback, options = {}) {
         } catch (err) {
           console.error(`Failed to get extension of file ${file.name}: ${err}`);
         }
-        console.log("Ext:", ext);
         if (
           disallowedFiles.includes(file.name) ||
           (allowedFiles.length > 0 && !allowedFiles.includes(file.name)) ||
@@ -68,7 +65,6 @@ async function crawler(directory, callback, options = {}) {
           continue;
 
         const contents = await readFile(fullPath, "utf8");
-        console.log("Callback calling with contents:", contents);
         await callback(fullPath, file.name, contents);
         count++;
       }
@@ -76,7 +72,6 @@ async function crawler(directory, callback, options = {}) {
   } catch (err) {
     console.error(`Failed to list contents of directory ${directory}: ${err}`);
   }
-
   return count;
 }
 
