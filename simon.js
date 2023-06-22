@@ -69,32 +69,17 @@ export const vueExpert = async (vue_to_migrate, file_name = "option") => {
       console.log(err);
     });
   await writeFile(`./example/${file_name}_1.vue`, responseOne.response);
-  const scriptChecker = `Check if the following SFC is correct \n\n ${responseOne.response} \n\n remember the 5 steps \n
-    1. Specify the Language and Setup Syntax: Start by specifying that you're using JavaScript and the setup syntax in your script tag \n 
-    2. Move props and context to defineProps() and defineContext(): In a regular Composition API setup, the props and context are available as arguments to the setup() function. In the script setup format, you get props and context through the defineProps() and defineContext() functions. use an interface to define the props type. Use withDefaults for default prop values: If you have props with default values, you would use the withDefaults method:
-    3. Remove the setup() function: In the script setup format, there is no need for a setup() function. Instead, you directly write your Composition API code inside the <script> tag.
-    4. Handle emits: If you need to use context.emit, you will use the defineEmits() function. This also serves as an opportunity to validate the event types.
-    5. remove the setup() return statement: In the script setup format, there is no need for a return statement. Instead, you directly write your Composition API code inside the <script> tag. \n\n
-    Remember to only return the new vue SFC.`;
-
-  /*   const responseTwo = await chain
-    .call({
-      input: scriptChecker,
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-
-  await writeFile(`./${file_name}_2.vue`, responseTwo.response); */
 
   // get the response and extract the vue SFC between ``` and ``` and return it. Remember to remove the file type from the first ```.
   const sfc = responseOne.response.replace("```vue", "```").split("```");
-  await writeFile(`./example/${file_name}_sfc.vue`, JSON.stringify(sfc));
+  console.log(sfc.length);
+  const finalSFC = sfc.length === 1 ? sfc[0] : sfc[1];
+  await writeFile(`./example/${file_name}_sfc.vue`, JSON.stringify(finalSFC));
   const AI_Signature = `/* migrated by simon.js by Fran ;P */`;
   // Remove white space from the beginning of the string
   // add the AI signature in the line before the last </script>
 
-  return sfc[1]
+  return finalSFC
     .replace(/^\s+/g, "")
     .replace("</script>", `${AI_Signature}\n</script>`);
 };

@@ -2,11 +2,13 @@
 
 1. **Add setup to the script tag**
 
-2. **make use of defineProps, defineEmits And withDefault when necessary**: In a regular Composition API setup, the props and emits are available as arguments to the setup() function. In the script setup format, you need to define them using the defineProps() and defineEmits() functions. If props are not used in the script tags, you can omit the declaration of the variable and just use the defineProps() function. If you have props with default values, you'll use the withDefaults method. The withDefaults method takes two arguments: the first is the defineProps() function, and the second is an object with the default values for the props. In the case we use emit on the setup() now we need to declare a variable with the defineEmits() function.
+2. **make use of defineProps and withDefault when necessary**: In a regular Composition API setup, the props are available as arguments to the setup() function. In the script setup format, you need to define them using the defineProps() functions. If props are not used in the script tags, you can omit the declaration of the variable and just use the defineProps() function. If you have props with default values, you'll use the withDefaults method. The withDefaults method takes two arguments: the first is the defineProps() function, and the second is an object with the default values for the props.
 
 3. **Remove the setup() function**: The script setup format doesn't require a setup() function. You'll directly write your Composition API code within the `<script>` tag. In the script setup format, there's no need for a return statement. Instead, you directly write your Composition API code inside the `<script>` tag.
 
 4. **Use withDefaults for default prop values**: If you have props with default values, you'll use the withDefaults method.
+
+5. **Use defineEmits for emitting events**: In a regular Composition API setup, emit are part of the context argument. In the script setup format, you'll use the defineEmits() function to declare the events that the component can emit. The defineEmits() function takes an array of strings as an argument. Each string is the name of an event that the component can emit. If you don't have any events to emit, you can omit the declaration of the emit variable and just use the defineEmits() function.
 
 ## Migration example 1
 
@@ -107,44 +109,44 @@ const formatCurrency = formatNumberKNotation;
 
 ## Migration example 2
 
-### Before 2
+### Before
 
 ```vue
 <template>
-  <header>
+  <header @click="emit('click')">
     <h1>{{ title }}</h1>
   </header>
 </template>
 <script lang="ts">
-import { computed, defineComponent, onMounted } from "vue";
+import { computed, defineComponent } from "vue";
 
 export default defineComponent({
-  name: "ParentComponent2",
+  name: "ParentComponent",
   props: {
     title: {
       type: String,
       default: "default title",
     },
   },
-  setup() {
-    onMounted(() => {
-      console.log("mounted");
-    });
+  setup(_, { emit }) {
+    return {
+      emit,
+    };
   },
 });
 </script>
 ```
 
-### After 2
+### After
 
 ```vue
 <template>
-  <header>
+  <header @click="emit('click')">
     <h1>{{ title }}</h1>
   </header>
 </template>
 <script setup lang="ts">
-import { computed, defineComponent, onMounted } from "vue";
+import { computed, defineComponent } from "vue";
 
 interface Props {
   title?: string;
@@ -153,5 +155,7 @@ interface Props {
 withDefaults(defineProps<Props>(), {
   title: "default title",
 });
+
+defineEmits(["click"]);
 </script>
 ```
